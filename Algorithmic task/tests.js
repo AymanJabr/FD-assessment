@@ -660,7 +660,7 @@ ftg: out
 lie: cws kfy rdq
 qxl: icp
 dvu: icp qxh hvb`,
-        expected: 5
+        expected: 708
     }
 ];
 

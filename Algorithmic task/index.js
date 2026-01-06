@@ -16,10 +16,12 @@ class Device {
 
     id;
     outputs;
+    pathCount; // Number of paths that lead to this device
 
     constructor(id) {
         this.id = id;
         this.outputs = [];
+        this.pathCount = 0;
     }
 }
 
@@ -77,6 +79,9 @@ function countPaths(devicesMap) {
     successfulDevices = ["out"];
     pathCount = 0;
 
+    // Initialize: "you" has 1 path leading to it
+    devicesMap["you"].pathCount = 1;
+
     while (queue.length > 0) {
         // 1 => Take/Remove the first element of the queue, and add it to the visitedDevices array
         const currentDeviceId = queue.shift();
@@ -92,8 +97,8 @@ function countPaths(devicesMap) {
         for (const output of currentDevice.outputs) {
             // 2.1 => we are going to check if any of them is in the successfulDevices array
             if (successfulDevices.includes(output)) {
-                // if so, we are going to increment the pathCount, and add the current node to the successfulDevices Array
-                pathCount++;
+                // if so, add all paths from current device to the total count
+                pathCount += currentDevice.pathCount;
                 if (!successfulDevices.includes(currentDeviceId)) {
                     successfulDevices.push(currentDeviceId);
                 }
@@ -106,6 +111,10 @@ function countPaths(devicesMap) {
             else {
                 if (!queue.includes(output)) {
                     queue.push(output);
+                }
+                // Accumulate paths: add current device's path count to the output device
+                if (devicesMap[output]) {
+                    devicesMap[output].pathCount += currentDevice.pathCount;
                 }
             }
         }
