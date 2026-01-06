@@ -12,7 +12,7 @@
 // iii: out
 
 //  1) Let's create a Device Object
-class Devices {
+class Device {
 
     id;
     outputs;
@@ -23,7 +23,28 @@ class Devices {
     }
 }
 
-// 2) We probably need to convert the input in the format given in the example, to Devices
+// 2) We convert the input in the format given in the example, to Devices
+function parseInputToDevices(input) {
+    const devicesMap = {};
+
+    if (!input || input.trim() === "") {
+        return devicesMap;
+    }
+
+    const lines = input.trim().split('\n');
+
+    for (const line of lines) {
+        const [id, outputsStr] = line.split(':');
+        const deviceId = id.trim();
+        const outputs = outputsStr.trim().split(' ').filter(o => o.length > 0);
+
+        const device = new Device(deviceId);
+        device.outputs = outputs;
+        devicesMap[deviceId] = device;
+    }
+
+    return devicesMap;
+}
 
 
 // 3) 
@@ -45,4 +66,11 @@ let pathCount = 0;
 //    2.3 => If not, we are going to add it to the queue
 // 3 => Once the queue is empty, we are going to return the pathCount
 
-console.log("hello world");
+
+// Test parsing
+const testCases = require('./tests.js');
+testCases.forEach((test) => {
+    console.log(`\n${test.name}`);
+    const devicesMap = parseInputToDevices(test.input);
+    console.log(devicesMap);
+});
