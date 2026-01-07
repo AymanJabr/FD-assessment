@@ -1,6 +1,6 @@
 # Backend API
 
-Python FastAPI backend for the FD Location Picker API.
+Python FastAPI backend for the FD Address Picker API.
 
 ## Features
 

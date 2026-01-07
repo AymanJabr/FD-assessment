@@ -28,7 +28,7 @@ class RegionsResponse(BaseModel):
 class CitiesResponse(BaseModel):
     data: List[City]
 
-app = FastAPI(title="FD Location Picker API", version="0.0.1")
+app = FastAPI(title="FD Address Picker API", version="0.0.1")
 
 
 
@@ -137,7 +137,7 @@ def simulate_legacy_delay():
 
 @app.get("/")
 def read_root():
-    return {"message": "FD Location Picker API", "version": "0.0.1"}
+    return {"message": "FD Address Picker API", "version": "0.0.1"}
 
 
 @app.get("/api/countries", response_model=CountriesResponse)

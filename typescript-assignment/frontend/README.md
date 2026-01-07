@@ -1,4 +1,4 @@
-# TypeScript/React Assignment - FD Location Picker
+# TypeScript/React Assignment - FD Address Picker
 
 A delivery address picker component with smart caching mechanism for an international online marketplace.
 
