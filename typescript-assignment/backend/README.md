@@ -1,13 +1,11 @@
 # Backend API
 
-Python FastAPI backend for the Address Picker application.
+Python FastAPI backend for the FD Location Picker API.
 
 ## Features
 
-- RESTful API endpoints for countries, regions, and cities
-- Mock data for demonstration
-- CORS enabled for frontend integration
-- Simulated network delays (1 second per request) to demonstrate caching benefits
+- Mock-data RESTful API endpoints for countries, regions, and cities
+- Simulated massive network delays (5-10 seconds per request) to demonstrate caching benefits
 
 ## API Endpoints
 
@@ -48,12 +46,3 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 The API will be available at http://localhost:8000
 
 API documentation is available at http://localhost:8000/docs
-
-## Docker
-
-Build and run with Docker:
-
-```bash
-docker build -t address-picker-backend .
-docker run -p 8000:8000 address-picker-backend
-```
