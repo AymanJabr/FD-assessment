@@ -49,14 +49,15 @@ function parseInputToDevices(input) {
 }
 
 
-// 3) 
+// 3)
 // Now we will need 3 arrays, and a counter:
 // - queue: to determine the next device to visit
 // - visitedDevices: to keep track of visited devices
 // - successfulDevices: In our example, we know that device "fff" can get us to "out", so any new path that leads to "fff" is a successful path
 let queue = ["you"];
-let visitedDevices = [];
-let successfulDevices = ["out"];
+let visitedDevices = new Set();
+let successfulDevices = new Set(["out"]);
+let queueSet = new Set(["you"]);
 
 let pathCount = 0;
 
@@ -75,8 +76,9 @@ function countPaths(devicesMap) {
 
     // Reset variables
     queue = ["you"];
-    visitedDevices = [];
-    successfulDevices = ["out"];
+    visitedDevices = new Set();
+    successfulDevices = new Set(["out"]);
+    queueSet = new Set(["you"]);
     pathCount = 0;
 
     // Initialize: "you" has 1 path leading to it
@@ -85,7 +87,8 @@ function countPaths(devicesMap) {
     while (queue.length > 0) {
         // 1 => Take/Remove the first element of the queue, and add it to the visitedDevices array
         const currentDeviceId = queue.shift();
-        visitedDevices.push(currentDeviceId);
+        queueSet.delete(currentDeviceId);
+        visitedDevices.add(currentDeviceId);
 
         const currentDevice = devicesMap[currentDeviceId];
 
@@ -96,21 +99,22 @@ function countPaths(devicesMap) {
         // 2 => For it's outputs, we are going to go output by output
         for (const output of currentDevice.outputs) {
             // 2.1 => we are going to check if any of them is in the successfulDevices array
-            if (successfulDevices.includes(output)) {
+            if (successfulDevices.has(output)) {
                 // if so, add all paths from current device to the total count
                 pathCount += currentDevice.pathCount;
-                if (!successfulDevices.includes(currentDeviceId)) {
-                    successfulDevices.push(currentDeviceId);
+                if (!successfulDevices.has(currentDeviceId)) {
+                    successfulDevices.add(currentDeviceId);
                 }
             }
             // 2.2 => If not, we are going check the visitedDevices array, if it's in this array we are going to skip this output
-            else if (visitedDevices.includes(output)) {
+            else if (visitedDevices.has(output)) {
                 continue;
             }
             // 2.3 => If not, we are going to add it to the queue
             else {
-                if (!queue.includes(output)) {
+                if (!queueSet.has(output)) {
                     queue.push(output);
+                    queueSet.add(output);
                 }
                 // Accumulate paths: add current device's path count to the output device
                 if (devicesMap[output]) {
