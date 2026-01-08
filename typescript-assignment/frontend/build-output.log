@@ -1,0 +1,13 @@
+
+> typescript-assignment@0.1.0 build /home/ayman/Desktop/projects/flatex-degiro/typescript-assignment/frontend
+> next build
+
+▲ Next.js 16.1.1 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 2.3s
+  Running TypeScript ...
+  Collecting page data using 15 workers ...
+⨯ Invalid segment configuration export detected. This can cause unexpected behavior from the configs not being applied. You should see the relevant failures in the logs above. Please fix them to continue.
+ ELIFECYCLE  Command failed with exit code 1.

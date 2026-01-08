@@ -1,13 +1,12 @@
 // NOT IMPLEMENTED YET
 
 
-// import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 // import { getCachedWithTimestamp, setCached } from '@/src/lib/redis';
 // import { City } from '@/src/types/address';
 
 // const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
-// const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-// const ONE_WEEK_SECONDS = 7 * 24 * 60 * 60;
+
 
 // /**
 //  * GET /api/streets/[cityId]
@@ -68,7 +67,7 @@
 //  * Fetches streets from the Python backend
 //  */
 // async function fetchStreetsFromBackend(cityId: string): Promise<City[]> {
-//   const url = `${BACKEND_URL}/cities/${cityId}/streets`;
+//   const url = `${BACKEND_URL}/api/streets/${cityId}`;
 //   const response = await fetch(url);
 
 //   if (!response.ok) {
@@ -86,3 +85,10 @@
 //     .then((streets) => setCached(cacheKey, streets, ONE_WEEK_SECONDS))
 //     .catch((err) => console.error('Background refresh failed:', err));
 // }
+
+export async function GET() {                                                       
+   return NextResponse.json(                                                         
+    { error: 'Not Implemented' },               
+    { status: 501 }                                                                 
+  );                                                                                
+} 

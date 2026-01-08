@@ -1,10 +1,10 @@
 // NOT USED SINCE COUNTRIES ARE FETCHED AT BUILD TIME
 
-// import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 // import { fetchCountries } from '@/src/lib/api-client';
 
 // ISR with weekly revalidation
-// export const revalidate = 7 * 24 * 60 * 60; // 1 week in seconds
+// export const revalidate = ONE_WEEK_SECONDS;
 
 // /**
 //  * GET /api/countries
@@ -24,3 +24,10 @@
 //     );
 //   }
 // }
+
+export async function GET() {                                                       
+   return NextResponse.json(                                                         
+    { error: 'Not Implemented - Countries are fetched at build time' },               
+    { status: 501 }                                                                 
+  );                                                                                
+} 

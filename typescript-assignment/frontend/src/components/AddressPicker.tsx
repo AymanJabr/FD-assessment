@@ -82,11 +82,6 @@ export function AddressPicker({
 
   // Fetch cities when region changes
   useEffect(() => {
-    if (!selectedRegionId) {
-      setCities([]);
-      return;
-    }
-
     fetchCities(selectedRegionId)
       .then((data) => setCities(data))
       .catch((err) => console.error('Failed to fetch cities:', err));

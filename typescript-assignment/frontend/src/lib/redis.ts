@@ -1,4 +1,5 @@
 import Redis from 'ioredis';
+import { THREE_WEEKS_SECONDS } from '../utils';
 
 let redisClient: Redis | null = null;
 
@@ -78,7 +79,7 @@ export async function getCachedWithTimestamp<T>(
 export async function setCached<T>(
   key: string,
   data: T,
-  ttl: number = 21 * 24 * 60 * 60 // 3 weeks
+  ttl: number = THREE_WEEKS_SECONDS
 ): Promise<void> {
   try {
     const client = getRedisClient();

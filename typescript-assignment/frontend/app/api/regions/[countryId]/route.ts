@@ -1,10 +1,10 @@
 // NOT USED SINCE REGIONS ARE FETCHED AT BUILD TIME
 
-// import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 // import { fetchRegions } from '@/src/lib/api-client';
 
 // // ISR with weekly revalidation
-// export const revalidate = 7 * 24 * 60 * 60; // 1 week in seconds
+// export const revalidate = ONE_WEEK_SECONDS;
 
 // /**
 //  * GET /api/regions/[countryId]
@@ -29,3 +29,10 @@
 //     );
 //   }
 // }
+
+export async function GET() {                                                       
+   return NextResponse.json(                                                         
+    { error: 'Not Implemented - Regions are fetched at build time' },               
+    { status: 501 }                                                                 
+  );                                                                                
+} 

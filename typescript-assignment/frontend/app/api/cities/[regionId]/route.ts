@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getCachedWithTimestamp, setCached } from '@/src/lib/redis';
 import { City } from '@/src/types/address';
+import { ONE_WEEK_MS, THREE_WEEKS_MS, THREE_WEEKS_SECONDS } from '@/src/utils';
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
-const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-const THREE_WEEKS_MS = 21 * 24 * 60 * 60 * 1000;
-const THREE_WEEKS_SECONDS = 21 * 24 * 60 * 60;
 
 /**
  * GET /api/cities/[regionId]
@@ -70,16 +68,18 @@ export async function GET(
 
 /**
  * Fetches cities from the Python backend
+ * Backend wraps response in {data: [...]} format
  */
 async function fetchCitiesFromBackend(regionId: string): Promise<City[]> {
-  const url = `${BACKEND_URL}/regions/${regionId}/cities`;
+  const url = `${BACKEND_URL}/api/cities/${regionId}`;
   const response = await fetch(url);
 
   if (!response.ok) {
     throw new Error(`Backend error: ${response.status}`);
   }
 
-  return response.json();
+  const json = await response.json();
+  return json.data; // Unwrap the data field
 }
 
 /**
