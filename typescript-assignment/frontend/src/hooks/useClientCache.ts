@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useMemo } from 'react';
 
 /**
  * Generic client-side memoization hook
@@ -20,5 +20,5 @@ export function useClientCache<T>() {
     cacheRef.current.set(key, value);
   }, []);
 
-  return { get, set };
+  return useMemo(() => ({ get, set }), [get, set]);
 }

@@ -2,7 +2,6 @@ import { fetchCountries, fetchRegions } from '@/src/lib/api-client';
 import { AddressPickerWrapper } from '@/src/components/AddressPickerWrapper';
 import { Toaster } from 'sonner';
 import { Region } from '@/src/types/address';
-import { ONE_WEEK_SECONDS } from '@/src/utils';
 
 // Revalidate every week
 export const revalidate = 604800;

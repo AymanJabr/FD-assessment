@@ -26,8 +26,8 @@ export interface Street {
 export interface AddressDetails {
   street: string;
   houseNumber: string;
-  apartmentNumber?: string;
-  postalCode?: string;
+  apartmentNumber: string;
+  postalCode: string;
 }
 
 export interface CompleteAddress {

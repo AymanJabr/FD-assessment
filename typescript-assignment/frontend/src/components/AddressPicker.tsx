@@ -14,10 +14,26 @@ const addressSchema = z.object({
   countryId: z.string().min(1, 'Please select a country'),
   regionId: z.string().min(1, 'Please select a region'),
   cityId: z.string().min(1, 'Please select a city'),
-  street: z.string().min(1, 'Street is required'),
-  houseNumber: z.string().min(1, 'House number is required'),
-  apartmentNumber: z.string().optional(),
-  postalCode: z.string().optional(),
+  street: z
+    .string()
+    .min(3, 'Street name must be at least 3 characters')
+    .max(100, 'Street name must be less than 100 characters')
+    .regex(/[a-zA-Z]/, 'Street name must contain at least one letter'),
+  houseNumber: z
+    .string()
+    .min(1, 'House number is required')
+    .max(10, 'House number must be less than 10 characters')
+    .regex(/^[0-9a-zA-Z\s-]+$/, 'House number must be alphanumeric'),
+  apartmentNumber: z
+    .string()
+    .min(1, 'Apartment number is required')
+    .max(20, 'Apartment number must be less than 20 characters')
+    .regex(/^[0-9a-zA-Z\s-]+$/, 'Apartment number must be alphanumeric'),
+  postalCode: z
+    .string()
+    .min(3, 'Postal code must be at least 3 characters')
+    .max(15, 'Postal code must be less than 15 characters')
+    .regex(/^[0-9a-zA-Z\s-]+$/, 'Postal code must be alphanumeric'),
 });
 
 type AddressFormData = z.infer<typeof addressSchema>;
@@ -43,6 +59,7 @@ export function AddressPicker({
 }: AddressPickerProps) {
   const [selectedCountryId, setSelectedCountryId] = useState('');
   const [selectedRegionId, setSelectedRegionId] = useState('');
+  const [selectedCityId, setSelectedCityId] = useState('');
   const [cities, setCities] = useState<City[]>([]);
 
   const { fetchCities, isLoading: citiesLoading, error: citiesError } = useCities();
@@ -66,6 +83,7 @@ export function AddressPicker({
   const handleCountryChange = (countryId: string) => {
     setSelectedCountryId(countryId);
     setSelectedRegionId('');
+    setSelectedCityId('');
     setCities([]);
     setValue('countryId', countryId);
     setValue('regionId', '');
@@ -75,13 +93,24 @@ export function AddressPicker({
   // Handle region selection
   const handleRegionChange = (regionId: string) => {
     setSelectedRegionId(regionId);
+    setSelectedCityId('');
     setCities([]);
     setValue('regionId', regionId);
     setValue('cityId', '');
   };
 
+  // Handle city selection
+  const handleCityChange = (cityId: string) => {
+    setSelectedCityId(cityId);
+    setValue('cityId', cityId);
+  };
+
   // Fetch cities when region changes
   useEffect(() => {
+    if (!selectedRegionId) {
+      return;
+    }
+
     fetchCities(selectedRegionId)
       .then((data) => setCities(data))
       .catch((err) => console.error('Failed to fetch cities:', err));
@@ -152,8 +181,8 @@ export function AddressPicker({
         {/* City Selector */}
         <Select
           label="City"
-          value=""
-          onChange={(cityId) => setValue('cityId', cityId)}
+          value={selectedCityId}
+          onChange={handleCityChange}
           options={cityOptions}
           placeholder="Select a city"
           disabled={!selectedRegionId}
@@ -182,7 +211,7 @@ export function AddressPicker({
           />
 
           <Input
-            label="Apartment Number (Optional)"
+            label="Apartment Number"
             {...register('apartmentNumber')}
             placeholder="e.g., Apt 4B"
             error={errors.apartmentNumber?.message}
@@ -190,7 +219,7 @@ export function AddressPicker({
         </div>
 
         <Input
-          label="Postal Code (Optional)"
+          label="Postal Code"
           {...register('postalCode')}
           placeholder="e.g., 12345"
           error={errors.postalCode?.message}

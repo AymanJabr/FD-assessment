@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { City } from '../types/address';
 import { useClientCache } from './useClientCache';
 
@@ -71,34 +71,47 @@ export function useCities() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const cache = useClientCache<City[]>();
+  const activeRequests = useRef<Map<string, Promise<City[]>>>(new Map());
 
-  const fetchCities = async (regionId: string): Promise<City[]> => {
+  const fetchCities = useCallback(async (regionId: string): Promise<City[]> => {
+    // 1. Check cache first
     const cached = cache.get(regionId);
     if (cached) return cached;
+    // 2. Check for in-flight request
+    const existingRequest = activeRequests.current.get(regionId);
+    if (existingRequest) return existingRequest;
 
     setIsLoading(true);
     setError(null);
 
-    try {
-      const response = await fetch(`/api/cities/${regionId}`);
-      if (!response.ok) throw new Error('Failed to fetch cities');
-      const data: City[] = await response.json();
-      cache.set(regionId, data);
-      return data;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch cities');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    // 3. Create new request
+    const promise = (async () => {
+      try {
+        const response = await fetch(`/api/cities/${regionId}`);
+        if (!response.ok) throw new Error('Failed to fetch cities');
+        const data: City[] = await response.json();
+        cache.set(regionId, data);
+        return data;
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : 'Failed to fetch cities';
+        setError(errorMsg);
+        throw err;
+      } finally {
+        setIsLoading(false);
+        activeRequests.current.delete(regionId);
+      }
+    })();
+
+    activeRequests.current.set(regionId, promise);
+    return promise;
+  }, [cache]);
 
   return { fetchCities, isLoading, error };
 }
 
 /**
  * NOT IMPLEMENTED YET
- * 
+ *
  * Hook for fetching streets with client-side memoization
  */
 // export function useStreets() {
