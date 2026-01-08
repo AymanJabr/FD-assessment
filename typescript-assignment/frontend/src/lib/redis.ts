@@ -73,12 +73,12 @@ export async function getCachedWithTimestamp<T>(
  * Sets data in Redis cache with TTL
  * @param key Cache key
  * @param data Data to cache
- * @param ttl Time to live in seconds (default: 1 week)
+ * @param ttl Time to live in seconds (default: 3 weeks - hard deletion after this)
  */
 export async function setCached<T>(
   key: string,
   data: T,
-  ttl: number = 7 * 24 * 60 * 60 // 1 week
+  ttl: number = 21 * 24 * 60 * 60 // 3 weeks
 ): Promise<void> {
   try {
     const client = getRedisClient();

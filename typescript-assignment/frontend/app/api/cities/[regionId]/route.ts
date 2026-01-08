@@ -4,17 +4,18 @@ import { City } from '@/src/types/address';
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-const ONE_WEEK_SECONDS = 7 * 24 * 60 * 60;
+const THREE_WEEKS_MS = 21 * 24 * 60 * 60 * 1000;
+const THREE_WEEKS_SECONDS = 21 * 24 * 60 * 60;
 
 /**
  * GET /api/cities/[regionId]
  *
  * Returns cities for a specific region with Redis caching.
  *
- * Strategy:
- * - First request: Cache miss → Show loading, fetch from backend, cache result
- * - Subsequent requests (for all users requesting the same region's cities): Cache hit → Return immediately
- * - After 1 week: Return stale data immediately, refresh in background for next user
+ * Three-tier caching strategy:
+ * - Week 0-1 (Fresh): Return immediately, no refresh
+ * - Week 1-3 (Stale): Return stale data immediately + background refresh
+ * - Week 3+ (Deleted): Cache miss, show loading, fetch from backend
  */
 export async function GET(
   request: Request,
@@ -30,26 +31,32 @@ export async function GET(
     if (cached) {
       const age = Date.now() - cached.timestamp;
 
-      // If data is fresh (< 1 week old), return immediately
+      // FRESH: Data is < 1 week old, return immediately
       if (age < ONE_WEEK_MS) {
         return NextResponse.json(cached.data);
       }
 
-      // Data is stale (> 1 week old)
-      // Return stale data immediately, then refresh in background
-      const response = NextResponse.json(cached.data);
+      // STALE: Data is 1-3 weeks old
+      // Return stale data immediately + trigger background refresh
+      if (age < THREE_WEEKS_MS) {
+        const response = NextResponse.json(cached.data);
 
-      // Trigger background refresh (don't await)
-      refreshCitiesInBackground(regionId, cacheKey);
+        // Trigger background refresh (don't await - fire and forget)
+        refreshCitiesInBackground(regionId, cacheKey);
 
-      return response;
+        return response;
+      }
+
+      // If age >= 3 weeks, Redis should have deleted it already
+      // This is a safety fallback - treat as cache miss
     }
 
-    // Cache miss - fetch from backend
+    // DELETED: Cache miss (first request or Redis deleted after 3 weeks)
+    // Show loading, fetch from backend
     const cities = await fetchCitiesFromBackend(regionId);
 
-    // Store in Redis
-    await setCached(cacheKey, cities, ONE_WEEK_SECONDS);
+    // Store in Redis with 3-week TTL
+    await setCached(cacheKey, cities, THREE_WEEKS_SECONDS);
 
     return NextResponse.json(cities);
   } catch (error) {
@@ -77,9 +84,10 @@ async function fetchCitiesFromBackend(regionId: string): Promise<City[]> {
 
 /**
  * Refreshes cities data in the background (fire and forget)
+ * Updates Redis cache with fresh data and new timestamp
  */
 function refreshCitiesInBackground(regionId: string, cacheKey: string): void {
   fetchCitiesFromBackend(regionId)
-    .then((cities) => setCached(cacheKey, cities, ONE_WEEK_SECONDS))
+    .then((cities) => setCached(cacheKey, cities, THREE_WEEKS_SECONDS))
     .catch((err) => console.error('Background refresh failed:', err));
 }

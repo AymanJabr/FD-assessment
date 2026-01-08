@@ -5,8 +5,6 @@ import { City } from '../types/address';
 import { useClientCache } from './useClientCache';
 
 
-// We only need the useCities (useCities, useStreets)
-
 
 /**
  * Hook for fetching countries
@@ -99,10 +97,9 @@ export function useCities() {
 }
 
 /**
- * Hook for fetching streets with client-side memoization
- * 
- * 
  * NOT IMPLEMENTED YET
+ * 
+ * Hook for fetching streets with client-side memoization
  */
 // export function useStreets() {
 //   const [isLoading, setIsLoading] = useState(false);

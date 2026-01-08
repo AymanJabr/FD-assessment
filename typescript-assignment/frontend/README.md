@@ -7,10 +7,17 @@ A delivery address picker component with smart caching mechanism for an internat
 We get all countries at once in server-side with Next, revalidate them every week, there are 200 something countries (unlikely to change, but who knows with what is going on 🤷), so we just refetch them once a week or at build server-side.
 
 We then want to also get the regions server-side, There are around 50 regions in your average big country (5000 total globally), since the backend is slow, it would be wiser to also get them at build time, and send them directly when the user asks for them. 
-We revalidate those once a user asks for them, so if the User asks for the regions in the Netherlands, we show them the old data, and do the region fetch call for the netherlands again server-side, so the next person that asks for the Netherlands regions has the new data without seeing any lag.
+We revalidate those once a week as well, and then after that when a user asks for them, they are shown the old data, while a new call is made for them, like the countries, or if the projects builds again in that time.
+So if after a week the User asks for the regions in the Netherlands, we show them the old data, and do the region fetch call for the netherlands again server-side, so the next person that asks for the Netherlands regions has the new data without seeing any lag.
 
 We then want to start the caching for cities (since apparently there are 40K+ places on earth with more than 100K people), we can't send all this data server-side at build time, but we still want to cache it server-side with Redis for the most-often asked-for regions.
 When the first user selects a region, we will show loading on the dropdown for cities, do the call, and save the result cities of that region in a Redis cache, so that if that user (or others) asks again for the cities in that region, we already have the answer. This last caching system in Redis will also be used for more finely grained calls (like street level). This way, the region cities/ or city streets that are most called for are in-memory, and we don't force each and every user to wait for them. Maybe we should also invalidate a Redis cached call after a week, we again show the old data so there is no lag, and the fetch the new data for the next client to come along
+
+This Redis integration will work like this:
+- <1 week: Cached data is returned directly from redis
+- 1-3 weeks: Stale data is returned from redis, and the data is revalidated in the background for the next user to ask for it
+- >3 weeks: After 3 weeks data is deleted, and user get's loading as the data is fetched from the database anew
+
 
 <!-- NOTE: we could be using unstable_cache in Next directly: https://nextjs.org/docs/app/api-reference/functions/unstable_cache, but it's still new and it depends on the memory of the Next server. I chose to go with the more robust and scalable solution of using Redis -->
 
